@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>뼈갈단 스터디 통합 대시보드 (Final)</title>
+    <title>뼈갈단 스터디 통합 대시보드 (Final V6)</title>
     <style>
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8f9fa; color: #333; margin: 0; }
         /* 배너 스타일 */
@@ -25,13 +25,31 @@
         .sub-title { color: #666; text-align: center; margin-bottom: 20px; }
         input.name-input { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #e74c3c; border-radius: 8px; background: #fff; color: #333; text-align: center; font-size: 1.1em; font-weight:bold; box-sizing: border-box; }
         
-        /* 달력 */
+        /* [추가됨] 요일 헤더 스타일 */
+        .day-headers { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 10px; text-align: center; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .day-header { color: #555; }
+        .day-header.sun { color: #e74c3c; } /* 일요일 빨강 */
+        .day-header.sat { color: #3498db; } /* 토요일 파랑 */
+
+        /* 달력 그리드 */
         .month-controls { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; font-size: 1.3em; font-weight: bold; color: #333; }
         .btn-move { background: none; border: none; color: #e74c3c; font-size: 1.5em; cursor: pointer; padding: 0 20px; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+        
         .day { height: 120px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px; background: #fff; overflow-y: auto; cursor: pointer; transition: 0.2s; position: relative; }
         .day:hover { background-color: #ffeceb; border-color: #e74c3c; }
+        
+        /* [추가됨] 빈 날짜(지난달/다음달 공백) 스타일 */
+        .day.empty { background: none; border: none; cursor: default; }
+        .day.empty:hover { background: none; }
+
         .day-number { font-weight: bold; margin-bottom: 5px; display: block; color: #333; }
+        
+        /* 일요일 날짜 빨강 */
+        .day-sun .day-number { color: #e74c3c; }
+        /* 토요일 날짜 파랑 */
+        .day-sat .day-number { color: #3498db; }
+
         .submitter-tag { display: block; font-size: 11px; background: #2c3e50; color: #fff; padding: 3px 6px; margin-bottom: 3px; border-radius: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         .my-submit { background: #e74c3c; }
 
@@ -98,12 +116,24 @@
     <div id="calendarTab" class="tab-content active">
         <h2>☠️ 월간 성과 현황</h2>
         <div class="sub-title">오늘도 뼈를 갈아 넣었는가?</div>
+        
         <div class="month-controls">
             <button class="btn-move" onclick="changeMonth(-1)">◀</button>
             <span id="currentMonth"></span>
             <button class="btn-move" onclick="changeMonth(1)">▶</button>
             <button onclick="loadData()" style="font-size:0.8em; cursor:pointer; background:none; border:none; color:#e74c3c;">🔄</button>
         </div>
+
+        <div class="day-headers">
+            <div class="day-header sun">일</div>
+            <div class="day-header">월</div>
+            <div class="day-header">화</div>
+            <div class="day-header">수</div>
+            <div class="day-header">목</div>
+            <div class="day-header">금</div>
+            <div class="day-header sat">토</div>
+        </div>
+
         <div class="calendar-grid" id="calendar"></div>
     </div>
 
@@ -146,7 +176,8 @@
 
 <script>
     // ============================================================
-    // ⚠️ 아래 주소를 새로 배포한 웹 앱 URL로 반드시 바꿔주세요!
+    // ⚠️ 구글 웹 앱 URL은 기존 것을 그대로 쓰시면 됩니다.
+    // 만약 URL을 잊어버렸다면 앱스 스크립트 > 배포 관리에서 확인 가능합니다.
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6FKs0qYRoU5laxyvaslspm6h5OHDnDSXs2AP6pcRi2Hjm4WNvNy7CWhTr2QXCdm3vpw/exec"; 
     // ============================================================
 
@@ -196,12 +227,11 @@
             .catch(error => {
                 console.error("데이터 로드 실패:", error);
                 document.getElementById('loadingMsg').style.display = 'none';
-                // 데이터가 아예 없을 때만 경고
                 if(!dbData.tasks) alert("서버와 통신할 수 없습니다. URL을 확인하세요.");
             });
     }
 
-    // 2. 화면 그리기 - 달력
+    // 2. 화면 그리기 - 달력 (요일 정렬 기능 추가됨)
     function renderCalendar() {
         const calendarEl = document.getElementById('calendar');
         calendarEl.innerHTML = '';
@@ -210,24 +240,38 @@
         const month = currentDate.getMonth();
         document.getElementById('currentMonth').innerText = `${year}년 ${month + 1}월`;
 
+        // 이번 달의 1일이 무슨 요일인지 계산 (0:일, 1:월 ... 6:토)
+        const firstDayIndex = new Date(year, month, 1).getDay();
+        // 이번 달의 마지막 날짜 계산
         const lastDay = new Date(year, month + 1, 0).getDate();
+        
         const myName = document.getElementById('userName').value.trim();
 
+        // [중요] 1일 전까지 빈 칸 채우기
+        for (let i = 0; i < firstDayIndex; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'day empty';
+            calendarEl.appendChild(emptyCell);
+        }
+
+        // 날짜 채우기
         for (let i = 1; i <= lastDay; i++) {
-            // 날짜 키 생성 (YYYY-M-D 형식)
             const dateKey = `${year}-${month+1}-${i}`;
-            
+            const dateObj = new Date(year, month, i);
+            const dayOfWeek = dateObj.getDay();
+
             const dayEl = document.createElement('div');
             dayEl.className = 'day';
+            
+            // 일요일(0)과 토요일(6) 색상 구분 클래스 추가
+            if (dayOfWeek === 0) dayEl.classList.add('day-sun');
+            if (dayOfWeek === 6) dayEl.classList.add('day-sat');
+
             dayEl.innerHTML = `<span class="day-number">${i}</span>`;
 
-            // 데이터 매칭 (날짜 문자열 비교)
+            // 데이터 매칭
             if (dbData.tasks) {
-                const todaysData = dbData.tasks.filter(item => {
-                    // 구글시트에서 'YYYY-M-D' 문자열로 오므로 그대로 비교
-                    return item.date === dateKey;
-                });
-                
+                const todaysData = dbData.tasks.filter(item => item.date === dateKey);
                 todaysData.forEach(item => {
                     const tag = document.createElement('span');
                     tag.className = 'submitter-tag';
@@ -280,21 +324,18 @@
             return;
         }
 
-        // 최신순 정렬 (timestamp 기준)
         const sortedFeeds = [...dbData.feeds].reverse();
 
         sortedFeeds.forEach(feed => {
             const li = document.createElement('li');
             li.className = 'feed-item';
             
-            // 이 피드에 달린 댓글만 필터링
             const myComments = dbData.comments ? dbData.comments.filter(c => c.feedId === feed.id) : [];
             let commentHtml = '';
             myComments.forEach(c => {
                 commentHtml += `<li class="comment-item"><span class="comment-author">${c.name}</span><span class="comment-content">${c.content}</span></li>`;
             });
 
-            // 날짜 예쁘게
             const dateStr = new Date(feed.timestamp).toLocaleString();
 
             li.innerHTML = `
@@ -323,14 +364,12 @@
 
         const newData = { action: 'saveTask', date: selectedDateKey, name: name, task: task };
         
-        // UI 즉시 반영 (낙관적 업데이트)
         dbData.tasks.push(newData);
         renderCalendar();
         renderRanking();
         closeModal();
         document.getElementById('inputTask').value = '';
 
-        // 서버 전송
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
     }
 
@@ -371,7 +410,7 @@
 
         if(!dbData.comments) dbData.comments = [];
         dbData.comments.push(newData);
-        renderFeed(); // 댓글 달린 거 바로 보이게 갱신
+        renderFeed();
 
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
     }
