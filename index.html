@@ -3,97 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>뼈갈단</title>
+    <title>뼈갈단 통합 대시보드</title>
     <style>
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8f9fa; color: #333; margin: 0; }
-        
-        /* 배너 스타일 */
         .banner { width: 100%; max-height: 300px; object-fit: cover; border-bottom: 3px solid #e74c3c; }
-        
         .container { max-width: 1000px; margin: 20px auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee; }
         
         /* 탭 메뉴 */
-        .tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
-        .tab-link { padding: 15px 25px; cursor: pointer; font-weight: bold; color: #999; transition: 0.3s; flex: 1; text-align: center; }
+        .tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; flex-wrap: wrap;}
+        .tab-link { padding: 15px 10px; cursor: pointer; font-weight: bold; color: #999; transition: 0.3s; flex: 1; text-align: center; min-width: 80px; }
         .tab-link:hover { color: #e74c3c; background: #fff5f5; }
         .tab-link.active { color: #e74c3c; border-bottom: 4px solid #e74c3c; background: #fff; }
         .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 공통 폰트 및 입력창 */
+        /* 공통 스타일 */
         h2 { color: #e74c3c; text-align: center; margin-top: 0; }
         .sub-title { color: #666; text-align: center; margin-bottom: 20px; }
         input.name-input { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #e74c3c; border-radius: 8px; background: #fff; color: #333; text-align: center; font-size: 1.1em; font-weight:bold; box-sizing: border-box; }
-        
-        /* 달력 헤더 (요일) 스타일 */
-        .day-headers { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 10px; text-align: center; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .day-header { color: #555; }
-        .day-header.sun { color: #e74c3c; } 
-        .day-header.sat { color: #3498db; }
-
-        /* 달력 컨트롤 및 그리드 */
-        .month-controls { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; font-size: 1.3em; font-weight: bold; color: #333; }
-        .btn-move { background: none; border: none; color: #e74c3c; font-size: 1.5em; cursor: pointer; padding: 0 20px; }
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-        
-        .day { height: 120px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px; background: #fff; overflow-y: auto; cursor: pointer; transition: 0.2s; position: relative; }
-        .day:hover { background-color: #ffeceb; border-color: #e74c3c; }
-        
-        /* 빈 날짜(지난달/다음달) 및 요일 색상 */
-        .day.empty { background: none; border: none; cursor: default; }
-        .day.empty:hover { background: none; }
-        .day-number { font-weight: bold; margin-bottom: 5px; display: block; color: #333; }
-        .day-sun .day-number { color: #e74c3c; }
-        .day-sat .day-number { color: #3498db; }
-
-        /* 제출자 태그 */
-        .submitter-tag { display: block; font-size: 11px; background: #2c3e50; color: #fff; padding: 3px 6px; margin-bottom: 3px; border-radius: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-        .my-submit { background: #e74c3c; }
-
-        /* 모달 (팝업) */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #fff; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .modal-header { color: #e74c3c; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 1.2em; font-weight: bold; }
-        .modal-body { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
-        
-        /* 리스트 및 입력창 공통 */
-        .task-list { list-style: none; padding: 0; margin: 0 0 20px 0; border-bottom: 1px solid #eee; padding-bottom: 20px; }
-        .task-item { background: #f9f9f9; padding: 12px; margin-bottom: 8px; border-radius: 6px; border-left: 4px solid #bdc3c7; }
-        .task-author { font-weight: bold; color: #333; margin-bottom: 4px; font-size: 0.9em; }
-        .task-desc { white-space: pre-wrap; font-size: 0.95em; color: #555; }
-        
         textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; resize: none; box-sizing: border-box; font-family: inherit; background: #fff; color: #333; margin-bottom: 10px; }
         textarea:focus { border-color: #e74c3c; outline: none; }
         .btn-submit { width: 100%; padding: 12px; background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1em; transition: 0.3s; }
         .btn-submit:hover { background: #c0392b; }
-        .close-btn { cursor: pointer; font-size: 2em; line-height: 0.5; color: #999; }
 
-        /* 랭킹 스타일 */
-        .ranking-list { list-style: none; padding: 0; }
-        .ranking-item { background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        /* [추가됨] 멤버 갤러리 스타일 */
+        .member-form { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #eee; text-align: center;}
+        .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .member-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; }
+        .member-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(231, 76, 60, 0.2); border-color: #e74c3c; }
+        .member-avatar { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 3px solid #f0f0f0; object-fit: cover; background-color: #fff; }
+        .member-name { font-weight: bold; font-size: 1.2em; color: #2c3e50; margin-bottom: 5px; }
+        .member-bio { font-size: 0.9em; color: #666; word-break: keep-all; line-height: 1.5; }
+
+        /* 기존 스타일들 (달력, 랭킹, 피드 등) */
+        .day-headers { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 10px; text-align: center; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .day-header.sun { color: #e74c3c; } .day-header.sat { color: #3498db; }
+        .month-controls { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; font-size: 1.3em; font-weight: bold; color: #333; }
+        .btn-move { background: none; border: none; color: #e74c3c; font-size: 1.5em; cursor: pointer; padding: 0 20px; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+        .day { height: 120px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px; background: #fff; overflow-y: auto; cursor: pointer; transition: 0.2s; position: relative; }
+        .day:hover { background-color: #ffeceb; border-color: #e74c3c; }
+        .day.empty { background: none; border: none; cursor: default; }
+        .day-number { font-weight: bold; margin-bottom: 5px; display: block; color: #333; }
+        .day-sun .day-number { color: #e74c3c; } .day-sat .day-number { color: #3498db; }
+        .submitter-tag { display: block; font-size: 11px; background: #2c3e50; color: #fff; padding: 3px 6px; margin-bottom: 3px; border-radius: 4px; }
+        .my-submit { background: #e74c3c; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #fff; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 85vh; display: flex; flex-direction: column; }
+        .modal-header { color: #e74c3c; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 1.2em; font-weight: bold; }
+        .modal-body { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
+        .task-list { list-style: none; padding: 0; margin: 0 0 20px 0; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .task-item { background: #f9f9f9; padding: 12px; margin-bottom: 8px; border-radius: 6px; border-left: 4px solid #bdc3c7; }
+        .task-author { font-weight: bold; color: #333; margin-bottom: 4px; font-size: 0.9em; }
+        .ranking-list, .feed-list { list-style: none; padding: 0; }
+        .ranking-item, .feed-item { background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .ranking-item { display: flex; justify-content: space-between; align-items: center; }
         .rank { font-weight: bold; font-size: 1.2em; color: #e74c3c; margin-right: 15px; min-width: 40px; }
         .rank-name { flex-grow: 1; font-weight: bold; color: #333; }
         .rank-count { color: #666; font-size: 0.9em; background: #eee; padding: 5px 10px; border-radius: 20px; }
-
-        /* 피드 스타일 */
-        .feed-form { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee; }
-        .feed-list { list-style: none; padding: 0; }
-        .feed-item { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
         .feed-header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
         .feed-name { font-weight: bold; color: #2c3e50; font-size: 1.1em; }
         .feed-date { color: #999; font-size: 0.8em; }
-        .feed-content { white-space: pre-wrap; color: #333; margin-bottom: 20px; line-height: 1.6; font-size: 1.05em; }
+        .feed-content { white-space: pre-wrap; margin-bottom: 20px; line-height: 1.6; }
         .comment-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; }
-        .comment-list { list-style: none; padding: 0; margin-bottom: 15px; }
         .comment-item { background: #fff; padding: 8px 12px; margin-bottom: 5px; border-radius: 6px; font-size: 0.9em; border: 1px solid #eee; display:flex; gap: 10px; }
         .comment-author { color: #e74c3c; font-weight: bold; white-space: nowrap; }
-        .comment-content { color: #555; word-break: break-all; }
-
-        /* 로딩 화면 */
+        
         .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); display:flex; justify-content:center; align-items:center; flex-direction: column; z-index: 2000; }
         .loading-spinner { border: 5px solid #f3f3f3; border-top: 5px solid #e74c3c; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .close-btn { cursor: pointer; font-size: 2em; line-height: 0.5; color: #999; }
     </style>
 </head>
 <body>
@@ -112,38 +92,28 @@
         <div class="tab-link active" onclick="openTab('calendarTab', event)">📅 성과 달력</div>
         <div class="tab-link" onclick="openTab('rankingTab', event)">🏆 명예의 전당</div>
         <div class="tab-link" onclick="openTab('snsTab', event)">💀 뼈이스북</div>
+        <div class="tab-link" onclick="openTab('memberTab', event)">👥 멤버 소개</div>
     </div>
 
     <div id="calendarTab" class="tab-content active">
         <h2>☠️ 월간 성과 현황</h2>
         <div class="sub-title">오늘도 뼈를 갈아 넣었는가?</div>
-        
         <div class="month-controls">
             <button class="btn-move" onclick="changeMonth(-1)">◀</button>
             <span id="currentMonth"></span>
             <button class="btn-move" onclick="changeMonth(1)">▶</button>
             <button onclick="loadData()" style="font-size:0.8em; cursor:pointer; background:none; border:none; color:#e74c3c;">🔄</button>
         </div>
-
         <div class="day-headers">
-            <div class="day-header sun">일</div>
-            <div class="day-header">월</div>
-            <div class="day-header">화</div>
-            <div class="day-header">수</div>
-            <div class="day-header">목</div>
-            <div class="day-header">금</div>
-            <div class="day-header sat">토</div>
+            <div class="day-header sun">일</div> <div class="day-header">월</div> <div class="day-header">화</div> <div class="day-header">수</div> <div class="day-header">목</div> <div class="day-header">금</div> <div class="day-header sat">토</div>
         </div>
-
         <div class="calendar-grid" id="calendar"></div>
     </div>
 
     <div id="rankingTab" class="tab-content">
         <h2>🏆 최다 뼈갈이 랭킹</h2>
         <div class="sub-title">가장 많이 뼈를 간 자는 누구인가?</div>
-        <ul id="rankingList" class="ranking-list">
-            <li style="text-align:center; color:#999; padding: 20px;">데이터 로딩 중...</li>
-        </ul>
+        <ul id="rankingList" class="ranking-list"></ul>
     </div>
 
     <div id="snsTab" class="tab-content">
@@ -153,9 +123,22 @@
             <textarea id="inputFeed" placeholder="무슨 생각을 하고 계신가요?"></textarea>
             <button class="btn-submit" onclick="saveFeed()">게시하기</button>
         </div>
-        <ul id="feedList" class="feed-list">
-            <li style="text-align:center; color:#999; padding: 20px;">불러오는 중...</li>
-        </ul>
+        <ul id="feedList" class="feed-list"></ul>
+    </div>
+
+    <div id="memberTab" class="tab-content">
+        <h2>👥 뼈갈단 멤버들</h2>
+        <div class="sub-title">우리는 뼈를 가는 동료들입니다</div>
+        
+        <div class="member-form">
+            <h4 style="margin-top:0;">내 프로필 등록/수정</h4>
+            <textarea id="inputBio" placeholder="간단한 자기소개를 입력하세요 (예: 매일 6시간 공부 목표!)"></textarea>
+            <button class="btn-submit" onclick="saveMember()">프로필 저장하기</button>
+            <p style="font-size:0.8em; color:#999; margin-top:5px;">* 같은 이름으로 저장하면 내용이 수정됩니다.</p>
+        </div>
+
+        <div class="member-grid" id="memberList">
+            </div>
     </div>
 </div>
 
@@ -177,22 +160,20 @@
 
 <script>
     // ============================================================
-    // ⚠️ [중요] 여기에 구글 웹 앱 URL을 다시 붙여넣으세요!
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6FKs0qYRoU5laxyvaslspm6h5OHDnDSXs2AP6pcRi2Hjm4WNvNy7CWhTr2QXCdm3vpw/exec"; 
+    // ⚠️ [중요] 새로 배포한 구글 웹 앱 URL을 여기에 넣으세요!
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7FfacDfUx1rkMcmC6mn-eN3SAp6MU3svSxogwDce0Usz0vimqOJRPCLfxnHDXXm6PMA/exec"; 
     // ============================================================
 
     let currentDate = new Date();
-    let dbData = { tasks: [], feeds: [], comments: [] };
+    let dbData = { tasks: [], feeds: [], comments: [], members: [] };
     let selectedDateKey = null;
 
-    // 초기화
     window.onload = function() {
         const savedName = localStorage.getItem('study_username');
         if(savedName) document.getElementById('userName').value = savedName;
-        loadData(); // 시작 시 데이터 로드
+        loadData();
     };
 
-    // 이름 저장 리스너
     document.getElementById('userName').addEventListener('input', function() {
         localStorage.setItem('study_username', this.value);
     });
@@ -200,88 +181,67 @@
         renderCalendar();
     });
 
-    // 1. 데이터 불러오기 (안전장치 포함)
     function loadData() {
         const loadingEl = document.getElementById('loadingMsg');
-        
-        // URL 체크
         if(SCRIPT_URL.includes("YOUR_NEW") || SCRIPT_URL === "") {
             loadingEl.style.display = 'none';
-            alert("⚠️ 중요: HTML 파일 맨 아래 SCRIPT_URL에 구글 앱스 스크립트 주소를 넣어주세요!");
+            alert("HTML 파일 맨 아래 SCRIPT_URL을 설정해주세요!");
             return;
         }
-        
         loadingEl.style.display = 'flex';
         
-        // 5초 타임아웃 (무한 로딩 방지)
         const safetyTimer = setTimeout(() => {
             if(loadingEl.style.display === 'flex') {
                 loadingEl.style.display = 'none';
-                alert("서버 응답이 늦습니다. 잠시 후 다시 시도하거나 URL을 확인해주세요.");
+                alert("서버 응답 지연.");
             }
         }, 5000);
 
         fetch(SCRIPT_URL + "?action=getAllData")
             .then(response => response.json())
             .then(data => {
-                clearTimeout(safetyTimer); // 성공 시 타이머 해제
+                clearTimeout(safetyTimer);
                 dbData = data;
-                
-                // 화면 그리기 시도
-                try {
-                    renderCalendar();
-                    renderRanking();
-                    renderFeed();
-                } catch (e) {
-                    console.error("화면 그리기 오류:", e);
-                }
-                
+                try { 
+                    renderCalendar(); 
+                    renderRanking(); 
+                    renderFeed(); 
+                    renderMembers(); // 멤버 렌더링 추가
+                } catch (e) { console.error(e); }
                 loadingEl.style.display = 'none';
             })
             .catch(error => {
-                clearTimeout(safetyTimer); // 에러 시 타이머 해제
+                clearTimeout(safetyTimer);
                 console.error("통신 실패:", error);
                 loadingEl.style.display = 'none';
-                // 기존 데이터조차 없을 때만 알림
-                if(!dbData.tasks || dbData.tasks.length === 0) {
-                    alert("데이터 로드 실패. F12 콘솔을 확인하세요.");
-                }
             });
     }
 
-    // 2. 화면 그리기 - 달력 (요일 정렬 포함)
+    // --- 렌더링 함수들 ---
+
     function renderCalendar() {
         const calendarEl = document.getElementById('calendar');
         calendarEl.innerHTML = '';
-        
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
         document.getElementById('currentMonth').innerText = `${year}년 ${month + 1}월`;
-
-        // 1일이 무슨 요일인지 (0:일 ~ 6:토)
         const firstDayIndex = new Date(year, month, 1).getDay();
-        // 마지막 날짜
         const lastDay = new Date(year, month + 1, 0).getDate();
         const myName = document.getElementById('userName').value.trim();
 
-        // 1일 전 빈 칸 채우기
         for (let i = 0; i < firstDayIndex; i++) {
             const emptyCell = document.createElement('div');
             emptyCell.className = 'day empty';
             calendarEl.appendChild(emptyCell);
         }
 
-        // 날짜 채우기
         for (let i = 1; i <= lastDay; i++) {
             const dateKey = `${year}-${month+1}-${i}`;
             const dayOfWeek = new Date(year, month, i).getDay();
             const dayEl = document.createElement('div');
             dayEl.className = 'day';
-            
-            // 주말 색상
             if (dayOfWeek === 0) dayEl.classList.add('day-sun');
             if (dayOfWeek === 6) dayEl.classList.add('day-sat');
-
             dayEl.innerHTML = `<span class="day-number">${i}</span>`;
 
             if (dbData.tasks) {
@@ -294,71 +254,70 @@
                     dayEl.appendChild(tag);
                 });
             }
-
             dayEl.onclick = () => openModal(dateKey);
             calendarEl.appendChild(dayEl);
         }
     }
 
-    // 3. 화면 그리기 - 랭킹
     function renderRanking() {
         const listEl = document.getElementById('rankingList');
         listEl.innerHTML = '';
-        if (!dbData.tasks || dbData.tasks.length === 0) {
-            listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">아직 기록이 없습니다.</li>';
-            return;
-        }
+        if (!dbData.tasks || dbData.tasks.length === 0) { listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">기록 없음</li>'; return; }
         const counts = {};
         dbData.tasks.forEach(t => { counts[t.name] = (counts[t.name] || 0) + 1; });
         const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-        
         sorted.forEach((item, index) => {
             const li = document.createElement('li');
             li.className = 'ranking-item';
             let rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index+1}위`;
-            li.innerHTML = `<span class="rank">${rankEmoji}</span>
-                            <span class="rank-name">${item[0]}</span>
-                            <span class="rank-count">${item[1]}회</span>`;
+            li.innerHTML = `<span class="rank">${rankEmoji}</span><span class="rank-name">${item[0]}</span><span class="rank-count">${item[1]}회</span>`;
             listEl.appendChild(li);
         });
     }
 
-    // 4. 화면 그리기 - 피드
     function renderFeed() {
         const listEl = document.getElementById('feedList');
         listEl.innerHTML = '';
-        if (!dbData.feeds || dbData.feeds.length === 0) {
-            listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">첫 글을 남겨보세요!</li>';
-            return;
-        }
+        if (!dbData.feeds || dbData.feeds.length === 0) { listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">첫 글을 남겨보세요!</li>'; return; }
         [...dbData.feeds].reverse().forEach(feed => {
             const li = document.createElement('li');
             li.className = 'feed-item';
             const myComments = dbData.comments ? dbData.comments.filter(c => c.feedId === feed.id) : [];
             let commentHtml = '';
-            myComments.forEach(c => {
-                commentHtml += `<li class="comment-item"><span class="comment-author">${c.name}</span><span class="comment-content">${c.content}</span></li>`;
-            });
+            myComments.forEach(c => { commentHtml += `<li class="comment-item"><span class="comment-author">${c.name}</span><span class="comment-content">${c.content}</span></li>`; });
             const dateStr = new Date(feed.timestamp).toLocaleString();
-            li.innerHTML = `
-                <div class="feed-header"><span class="feed-name">${feed.name}</span><span class="feed-date">${dateStr}</span></div>
-                <div class="feed-content">${feed.content}</div>
-                <div class="comment-section">
-                    <ul class="comment-list" id="commentList-${feed.id}">${commentHtml}</ul>
-                    <div style="display:flex; gap:5px;">
-                        <input type="text" id="commentInput-${feed.id}" placeholder="댓글 달기..." style="flex:1; padding:8px; border:1px solid #ddd; border-radius:4px;">
-                        <button class="btn-submit" style="width:60px; padding:0;" onclick="saveComment('${feed.id}')">등록</button>
-                    </div>
-                </div>`;
+            li.innerHTML = `<div class="feed-header"><span class="feed-name">${feed.name}</span><span class="feed-date">${dateStr}</span></div><div class="feed-content">${feed.content}</div><div class="comment-section"><ul class="comment-list" id="commentList-${feed.id}">${commentHtml}</ul><div style="display:flex; gap:5px;"><input type="text" id="commentInput-${feed.id}" placeholder="댓글..." style="flex:1; padding:8px; border:1px solid #ddd; border-radius:4px;"><button class="btn-submit" style="width:60px; padding:0;" onclick="saveComment('${feed.id}')">등록</button></div></div>`;
             listEl.appendChild(li);
         });
     }
 
-    // 5. 저장 로직
+    // [신규] 멤버 갤러리 렌더링
+    function renderMembers() {
+        const listEl = document.getElementById('memberList');
+        listEl.innerHTML = '';
+        if (!dbData.members || dbData.members.length === 0) { listEl.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#999;">등록된 멤버가 없습니다.</p>'; return; }
+        
+        dbData.members.forEach(member => {
+            const div = document.createElement('div');
+            div.className = 'member-card';
+            // 이름 기반으로 자동 아바타 생성 (DiceBear API 사용)
+            const avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(member.name)}`;
+            
+            div.innerHTML = `
+                <img src="${avatarUrl}" class="member-avatar" alt="${member.name}">
+                <div class="member-name">${member.name}</div>
+                <div class="member-bio">${member.bio}</div>
+            `;
+            listEl.appendChild(div);
+        });
+    }
+
+    // --- 저장 함수들 ---
+
     function saveTask() {
         const name = document.getElementById('userName').value.trim();
         const task = document.getElementById('inputTask').value.trim();
-        if(!name || !task) { alert("이름과 내용을 입력해주세요."); return; }
+        if(!name || !task) { alert("입력해주세요."); return; }
         const newData = { action: 'saveTask', date: selectedDateKey, name: name, task: task };
         dbData.tasks.push(newData); renderCalendar(); renderRanking(); closeModal(); document.getElementById('inputTask').value = '';
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
@@ -367,7 +326,7 @@
     function saveFeed() {
         const name = document.getElementById('userName').value.trim();
         const content = document.getElementById('inputFeed').value.trim();
-        if(!name || !content) { alert("이름과 내용을 입력해주세요."); return; }
+        if(!name || !content) { alert("입력해주세요."); return; }
         const newData = { action: 'saveFeed', id: 'feed_' + Date.now(), name: name, content: content, timestamp: new Date().toISOString() };
         if(!dbData.feeds) dbData.feeds = []; dbData.feeds.push(newData); renderFeed(); document.getElementById('inputFeed').value = '';
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
@@ -377,13 +336,37 @@
         const name = document.getElementById('userName').value.trim();
         const inputEl = document.getElementById(`commentInput-${feedId}`);
         const content = inputEl.value.trim();
-        if(!name || !content) { alert("이름과 내용을 입력해주세요."); return; }
+        if(!name || !content) { alert("입력해주세요."); return; }
         const newData = { action: 'saveComment', feedId: feedId, name: name, content: content, timestamp: new Date().toISOString() };
         if(!dbData.comments) dbData.comments = []; dbData.comments.push(newData); renderFeed();
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
     }
 
-    // 유틸리티
+    // [신규] 멤버 저장 함수
+    function saveMember() {
+        const name = document.getElementById('userName').value.trim();
+        const bio = document.getElementById('inputBio').value.trim();
+        if(!name || !bio) { alert("이름과 소개글을 입력해주세요."); return; }
+
+        const newData = { action: 'saveMember', name: name, bio: bio };
+        
+        // 화면에 즉시 반영 (이미 있으면 수정, 없으면 추가)
+        if (!dbData.members) dbData.members = [];
+        const existingIndex = dbData.members.findIndex(m => m.name === name);
+        if (existingIndex >= 0) {
+            dbData.members[existingIndex].bio = bio; // 수정
+            alert("프로필이 수정되었습니다!");
+        } else {
+            dbData.members.push(newData); // 추가
+            alert("환영합니다! 프로필이 등록되었습니다.");
+        }
+        
+        renderMembers();
+        document.getElementById('inputBio').value = '';
+        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
+    }
+
+    // --- 유틸리티 ---
     function openTab(tabName, event) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-link').forEach(el => el.classList.remove('active'));
@@ -391,6 +374,7 @@
         event.currentTarget.classList.add('active');
         if(tabName === 'rankingTab') renderRanking();
         if(tabName === 'snsTab') renderFeed();
+        if(tabName === 'memberTab') renderMembers();
     }
     function openModal(date) {
         selectedDateKey = date;
@@ -398,7 +382,7 @@
         const listEl = document.getElementById('taskList');
         listEl.innerHTML = '';
         const tasks = dbData.tasks ? dbData.tasks.filter(t => t.date === date) : [];
-        if(tasks.length === 0) { listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">기록이 없습니다.</li>'; }
+        if(tasks.length === 0) { listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">기록 없음</li>'; } 
         else { tasks.forEach(t => { listEl.innerHTML += `<li class="task-item"><div class="task-author">${t.name}</div><div class="task-desc">${t.task}</div></li>`; }); }
         document.getElementById('taskModal').style.display = 'flex';
     }
@@ -408,4 +392,3 @@
 </script>
 </body>
 </html>
-
