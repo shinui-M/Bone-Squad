@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>뼈갈단 스터디 통합 대시보드 (Final V6)</title>
+    <title>뼈갈단 스터디 통합 대시보드 (Final)</title>
     <style>
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8f9fa; color: #333; margin: 0; }
+        
         /* 배너 스타일 */
         .banner { width: 100%; max-height: 300px; object-fit: cover; border-bottom: 3px solid #e74c3c; }
         
@@ -20,18 +21,18 @@
         .tab-content.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 공통 */
+        /* 공통 폰트 및 입력창 */
         h2 { color: #e74c3c; text-align: center; margin-top: 0; }
         .sub-title { color: #666; text-align: center; margin-bottom: 20px; }
         input.name-input { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #e74c3c; border-radius: 8px; background: #fff; color: #333; text-align: center; font-size: 1.1em; font-weight:bold; box-sizing: border-box; }
         
-        /* [추가됨] 요일 헤더 스타일 */
+        /* 달력 헤더 (요일) 스타일 */
         .day-headers { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 10px; text-align: center; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .day-header { color: #555; }
-        .day-header.sun { color: #e74c3c; } /* 일요일 빨강 */
-        .day-header.sat { color: #3498db; } /* 토요일 파랑 */
+        .day-header.sun { color: #e74c3c; } 
+        .day-header.sat { color: #3498db; }
 
-        /* 달력 그리드 */
+        /* 달력 컨트롤 및 그리드 */
         .month-controls { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; font-size: 1.3em; font-weight: bold; color: #333; }
         .btn-move { background: none; border: none; color: #e74c3c; font-size: 1.5em; cursor: pointer; padding: 0 20px; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
@@ -39,41 +40,24 @@
         .day { height: 120px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px; background: #fff; overflow-y: auto; cursor: pointer; transition: 0.2s; position: relative; }
         .day:hover { background-color: #ffeceb; border-color: #e74c3c; }
         
-        /* [추가됨] 빈 날짜(지난달/다음달 공백) 스타일 */
+        /* 빈 날짜(지난달/다음달) 및 요일 색상 */
         .day.empty { background: none; border: none; cursor: default; }
         .day.empty:hover { background: none; }
-
         .day-number { font-weight: bold; margin-bottom: 5px; display: block; color: #333; }
-        
-        /* 일요일 날짜 빨강 */
         .day-sun .day-number { color: #e74c3c; }
-        /* 토요일 날짜 파랑 */
         .day-sat .day-number { color: #3498db; }
 
-        ```css
-/* 요일바 스타일 */
-.day-headers { 
-    display: grid; 
-    grid-template-columns: repeat(7, 1fr); 
-    gap: 10px; 
-    margin-bottom: 10px; 
-    text-align: center; 
-    font-weight: bold; 
-    border-bottom: 1px solid #eee; 
-    padding-bottom: 10px; 
-}
-.day-header.sun { color: #e74c3c; } /* 일요일 빨강 */
-.day-header.sat { color: #3498db; } /* 토요일 파랑 */
-
-        
+        /* 제출자 태그 */
         .submitter-tag { display: block; font-size: 11px; background: #2c3e50; color: #fff; padding: 3px 6px; margin-bottom: 3px; border-radius: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         .my-submit { background: #e74c3c; }
 
-        /* 모달 */
+        /* 모달 (팝업) */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #fff; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .modal-header { color: #e74c3c; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 1.2em; font-weight: bold; }
         .modal-body { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
+        
+        /* 리스트 및 입력창 공통 */
         .task-list { list-style: none; padding: 0; margin: 0 0 20px 0; border-bottom: 1px solid #eee; padding-bottom: 20px; }
         .task-item { background: #f9f9f9; padding: 12px; margin-bottom: 8px; border-radius: 6px; border-left: 4px solid #bdc3c7; }
         .task-author { font-weight: bold; color: #333; margin-bottom: 4px; font-size: 0.9em; }
@@ -85,14 +69,14 @@
         .btn-submit:hover { background: #c0392b; }
         .close-btn { cursor: pointer; font-size: 2em; line-height: 0.5; color: #999; }
 
-        /* 랭킹 탭 */
+        /* 랭킹 스타일 */
         .ranking-list { list-style: none; padding: 0; }
         .ranking-item { background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .rank { font-weight: bold; font-size: 1.2em; color: #e74c3c; margin-right: 15px; min-width: 40px; }
         .rank-name { flex-grow: 1; font-weight: bold; color: #333; }
         .rank-count { color: #666; font-size: 0.9em; background: #eee; padding: 5px 10px; border-radius: 20px; }
 
-        /* 뼈이스북 탭 */
+        /* 피드 스타일 */
         .feed-form { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee; }
         .feed-list { list-style: none; padding: 0; }
         .feed-item { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
@@ -106,6 +90,7 @@
         .comment-author { color: #e74c3c; font-weight: bold; white-space: nowrap; }
         .comment-content { color: #555; word-break: break-all; }
 
+        /* 로딩 화면 */
         .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); display:flex; justify-content:center; align-items:center; flex-direction: column; z-index: 2000; }
         .loading-spinner { border: 5px solid #f3f3f3; border-top: 5px solid #e74c3c; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -140,7 +125,7 @@
             <button onclick="loadData()" style="font-size:0.8em; cursor:pointer; background:none; border:none; color:#e74c3c;">🔄</button>
         </div>
 
-      <div class="day-headers">
+        <div class="day-headers">
             <div class="day-header sun">일</div>
             <div class="day-header">월</div>
             <div class="day-header">화</div>
@@ -192,8 +177,7 @@
 
 <script>
     // ============================================================
-    // ⚠️ 구글 웹 앱 URL은 기존 것을 그대로 쓰시면 됩니다.
-    // 만약 URL을 잊어버렸다면 앱스 스크립트 > 배포 관리에서 확인 가능합니다.
+    // ⚠️ [중요] 여기에 구글 웹 앱 URL을 다시 붙여넣으세요!
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6FKs0qYRoU5laxyvaslspm6h5OHDnDSXs2AP6pcRi2Hjm4WNvNy7CWhTr2QXCdm3vpw/exec"; 
     // ============================================================
 
@@ -205,8 +189,7 @@
     window.onload = function() {
         const savedName = localStorage.getItem('study_username');
         if(savedName) document.getElementById('userName').value = savedName;
-        
-        loadData(); // 시작하자마자 데이터 로드
+        loadData(); // 시작 시 데이터 로드
     };
 
     // 이름 저장 리스너
@@ -214,40 +197,59 @@
         localStorage.setItem('study_username', this.value);
     });
     document.getElementById('userName').addEventListener('change', function() {
-        renderCalendar(); // 이름 바꾸면 내 성과 표시(빨간색) 갱신
+        renderCalendar();
     });
 
-    // 1. 데이터 불러오기 (Read)
+    // 1. 데이터 불러오기 (안전장치 포함)
     function loadData() {
-        if(SCRIPT_URL.includes("YOUR_NEW")) {
-            document.getElementById('loadingMsg').style.display = 'none';
-            alert("스크립트 URL을 설정해주세요!");
+        const loadingEl = document.getElementById('loadingMsg');
+        
+        // URL 체크
+        if(SCRIPT_URL.includes("YOUR_NEW") || SCRIPT_URL === "") {
+            loadingEl.style.display = 'none';
+            alert("⚠️ 중요: HTML 파일 맨 아래 SCRIPT_URL에 구글 앱스 스크립트 주소를 넣어주세요!");
             return;
         }
         
-        document.getElementById('loadingMsg').style.display = 'flex';
+        loadingEl.style.display = 'flex';
         
+        // 5초 타임아웃 (무한 로딩 방지)
+        const safetyTimer = setTimeout(() => {
+            if(loadingEl.style.display === 'flex') {
+                loadingEl.style.display = 'none';
+                alert("서버 응답이 늦습니다. 잠시 후 다시 시도하거나 URL을 확인해주세요.");
+            }
+        }, 5000);
+
         fetch(SCRIPT_URL + "?action=getAllData")
             .then(response => response.json())
             .then(data => {
-                console.log("데이터 수신 완료:", data); // 디버깅용
+                clearTimeout(safetyTimer); // 성공 시 타이머 해제
                 dbData = data;
                 
-                // 모든 화면 갱신
-                renderCalendar();
-                renderRanking();
-                renderFeed();
+                // 화면 그리기 시도
+                try {
+                    renderCalendar();
+                    renderRanking();
+                    renderFeed();
+                } catch (e) {
+                    console.error("화면 그리기 오류:", e);
+                }
                 
-                document.getElementById('loadingMsg').style.display = 'none';
+                loadingEl.style.display = 'none';
             })
             .catch(error => {
-                console.error("데이터 로드 실패:", error);
-                document.getElementById('loadingMsg').style.display = 'none';
-                if(!dbData.tasks) alert("서버와 통신할 수 없습니다. URL을 확인하세요.");
+                clearTimeout(safetyTimer); // 에러 시 타이머 해제
+                console.error("통신 실패:", error);
+                loadingEl.style.display = 'none';
+                // 기존 데이터조차 없을 때만 알림
+                if(!dbData.tasks || dbData.tasks.length === 0) {
+                    alert("데이터 로드 실패. F12 콘솔을 확인하세요.");
+                }
             });
     }
 
-    // 2. 화면 그리기 - 달력 (요일 정렬 기능 추가됨)
+    // 2. 화면 그리기 - 달력 (요일 정렬 포함)
     function renderCalendar() {
         const calendarEl = document.getElementById('calendar');
         calendarEl.innerHTML = '';
@@ -256,14 +258,13 @@
         const month = currentDate.getMonth();
         document.getElementById('currentMonth').innerText = `${year}년 ${month + 1}월`;
 
-        // 이번 달의 1일이 무슨 요일인지 계산 (0:일, 1:월 ... 6:토)
+        // 1일이 무슨 요일인지 (0:일 ~ 6:토)
         const firstDayIndex = new Date(year, month, 1).getDay();
-        // 이번 달의 마지막 날짜 계산
+        // 마지막 날짜
         const lastDay = new Date(year, month + 1, 0).getDate();
-        
         const myName = document.getElementById('userName').value.trim();
 
-        // [중요] 1일 전까지 빈 칸 채우기
+        // 1일 전 빈 칸 채우기
         for (let i = 0; i < firstDayIndex; i++) {
             const emptyCell = document.createElement('div');
             emptyCell.className = 'day empty';
@@ -273,19 +274,16 @@
         // 날짜 채우기
         for (let i = 1; i <= lastDay; i++) {
             const dateKey = `${year}-${month+1}-${i}`;
-            const dateObj = new Date(year, month, i);
-            const dayOfWeek = dateObj.getDay();
-
+            const dayOfWeek = new Date(year, month, i).getDay();
             const dayEl = document.createElement('div');
             dayEl.className = 'day';
             
-            // 일요일(0)과 토요일(6) 색상 구분 클래스 추가
+            // 주말 색상
             if (dayOfWeek === 0) dayEl.classList.add('day-sun');
             if (dayOfWeek === 6) dayEl.classList.add('day-sat');
 
             dayEl.innerHTML = `<span class="day-number">${i}</span>`;
 
-            // 데이터 매칭
             if (dbData.tasks) {
                 const todaysData = dbData.tasks.filter(item => item.date === dateKey);
                 todaysData.forEach(item => {
@@ -306,17 +304,12 @@
     function renderRanking() {
         const listEl = document.getElementById('rankingList');
         listEl.innerHTML = '';
-        
         if (!dbData.tasks || dbData.tasks.length === 0) {
-            listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">아직 등록된 성과가 없습니다.</li>';
+            listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">아직 기록이 없습니다.</li>';
             return;
         }
-
         const counts = {};
-        dbData.tasks.forEach(t => {
-            counts[t.name] = (counts[t.name] || 0) + 1;
-        });
-
+        dbData.tasks.forEach(t => { counts[t.name] = (counts[t.name] || 0) + 1; });
         const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
         
         sorted.forEach((item, index) => {
@@ -334,31 +327,21 @@
     function renderFeed() {
         const listEl = document.getElementById('feedList');
         listEl.innerHTML = '';
-
         if (!dbData.feeds || dbData.feeds.length === 0) {
-            listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">첫 번째 글을 남겨보세요!</li>';
+            listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">첫 글을 남겨보세요!</li>';
             return;
         }
-
-        const sortedFeeds = [...dbData.feeds].reverse();
-
-        sortedFeeds.forEach(feed => {
+        [...dbData.feeds].reverse().forEach(feed => {
             const li = document.createElement('li');
             li.className = 'feed-item';
-            
             const myComments = dbData.comments ? dbData.comments.filter(c => c.feedId === feed.id) : [];
             let commentHtml = '';
             myComments.forEach(c => {
                 commentHtml += `<li class="comment-item"><span class="comment-author">${c.name}</span><span class="comment-content">${c.content}</span></li>`;
             });
-
             const dateStr = new Date(feed.timestamp).toLocaleString();
-
             li.innerHTML = `
-                <div class="feed-header">
-                    <span class="feed-name">${feed.name}</span>
-                    <span class="feed-date">${dateStr}</span>
-                </div>
+                <div class="feed-header"><span class="feed-name">${feed.name}</span><span class="feed-date">${dateStr}</span></div>
                 <div class="feed-content">${feed.content}</div>
                 <div class="comment-section">
                     <ul class="comment-list" id="commentList-${feed.id}">${commentHtml}</ul>
@@ -366,26 +349,18 @@
                         <input type="text" id="commentInput-${feed.id}" placeholder="댓글 달기..." style="flex:1; padding:8px; border:1px solid #ddd; border-radius:4px;">
                         <button class="btn-submit" style="width:60px; padding:0;" onclick="saveComment('${feed.id}')">등록</button>
                     </div>
-                </div>
-            `;
+                </div>`;
             listEl.appendChild(li);
         });
     }
 
-    // 5. 저장 로직 (Write)
+    // 5. 저장 로직
     function saveTask() {
         const name = document.getElementById('userName').value.trim();
         const task = document.getElementById('inputTask').value.trim();
-        if(!name || !task) { alert("이름과 내용을 모두 입력해주세요."); return; }
-
+        if(!name || !task) { alert("이름과 내용을 입력해주세요."); return; }
         const newData = { action: 'saveTask', date: selectedDateKey, name: name, task: task };
-        
-        dbData.tasks.push(newData);
-        renderCalendar();
-        renderRanking();
-        closeModal();
-        document.getElementById('inputTask').value = '';
-
+        dbData.tasks.push(newData); renderCalendar(); renderRanking(); closeModal(); document.getElementById('inputTask').value = '';
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
     }
 
@@ -393,20 +368,8 @@
         const name = document.getElementById('userName').value.trim();
         const content = document.getElementById('inputFeed').value.trim();
         if(!name || !content) { alert("이름과 내용을 입력해주세요."); return; }
-
-        const newData = { 
-            action: 'saveFeed', 
-            id: 'feed_' + Date.now(), 
-            name: name, 
-            content: content, 
-            timestamp: new Date().toISOString() 
-        };
-
-        if(!dbData.feeds) dbData.feeds = [];
-        dbData.feeds.push(newData);
-        renderFeed();
-        document.getElementById('inputFeed').value = '';
-
+        const newData = { action: 'saveFeed', id: 'feed_' + Date.now(), name: name, content: content, timestamp: new Date().toISOString() };
+        if(!dbData.feeds) dbData.feeds = []; dbData.feeds.push(newData); renderFeed(); document.getElementById('inputFeed').value = '';
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
     }
 
@@ -414,20 +377,9 @@
         const name = document.getElementById('userName').value.trim();
         const inputEl = document.getElementById(`commentInput-${feedId}`);
         const content = inputEl.value.trim();
-        if(!name || !content) { alert("이름과 댓글을 입력해주세요."); return; }
-
-        const newData = {
-            action: 'saveComment',
-            feedId: feedId,
-            name: name,
-            content: content,
-            timestamp: new Date().toISOString()
-        };
-
-        if(!dbData.comments) dbData.comments = [];
-        dbData.comments.push(newData);
-        renderFeed();
-
+        if(!name || !content) { alert("이름과 내용을 입력해주세요."); return; }
+        const newData = { action: 'saveComment', feedId: feedId, name: name, content: content, timestamp: new Date().toISOString() };
+        if(!dbData.comments) dbData.comments = []; dbData.comments.push(newData); renderFeed();
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
     }
 
@@ -437,34 +389,22 @@
         document.querySelectorAll('.tab-link').forEach(el => el.classList.remove('active'));
         document.getElementById(tabName).classList.add('active');
         event.currentTarget.classList.add('active');
-        
         if(tabName === 'rankingTab') renderRanking();
         if(tabName === 'snsTab') renderFeed();
     }
-
     function openModal(date) {
         selectedDateKey = date;
         document.getElementById('modalDateTitle').innerText = date;
         const listEl = document.getElementById('taskList');
         listEl.innerHTML = '';
-        
         const tasks = dbData.tasks ? dbData.tasks.filter(t => t.date === date) : [];
-        if(tasks.length === 0) {
-            listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">작성된 일과가 없습니다.</li>';
-        } else {
-            tasks.forEach(t => {
-                listEl.innerHTML += `<li class="task-item"><div class="task-author">${t.name}</div><div class="task-desc">${t.task}</div></li>`;
-            });
-        }
+        if(tasks.length === 0) { listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">기록이 없습니다.</li>'; }
+        else { tasks.forEach(t => { listEl.innerHTML += `<li class="task-item"><div class="task-author">${t.name}</div><div class="task-desc">${t.task}</div></li>`; }); }
         document.getElementById('taskModal').style.display = 'flex';
     }
-
     function closeModal() { document.getElementById('taskModal').style.display = 'none'; }
     function changeMonth(step) { currentDate.setMonth(currentDate.getMonth() + step); renderCalendar(); }
     window.onclick = function(e) { if(e.target == document.getElementById('taskModal')) closeModal(); }
-
 </script>
 </body>
 </html>
-
-
