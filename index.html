@@ -27,16 +27,25 @@
         .btn-submit { width: 100%; padding: 12px; background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1em; transition: 0.3s; }
         .btn-submit:hover { background: #c0392b; }
 
-        /* [추가됨] 멤버 갤러리 스타일 */
-        .member-form { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #eee; text-align: center;}
+        /* 멤버 갤러리 및 아바타 설정 스타일 */
+        .member-form { background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 1px solid #eee; display:flex; flex-direction: column; align-items: center; }
+        
+        /* 아바타 커스텀 영역 */
+        .avatar-preview-container { display: flex; flex-direction: column; align-items: center; margin-bottom: 15px; }
+        .avatar-preview { width: 100px; height: 100px; border-radius: 50%; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background: #eee; object-fit: cover; margin-bottom: 10px;}
+        .avatar-controls { display: flex; gap: 10px; margin-bottom: 15px; }
+        select.avatar-select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+        button.avatar-btn { padding: 8px 12px; border: 1px solid #ccc; background: white; border-radius: 5px; cursor: pointer; }
+        button.avatar-btn:hover { background: #eee; }
+
         .member-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .member-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; }
+        .member-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s; position: relative; }
         .member-card:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(231, 76, 60, 0.2); border-color: #e74c3c; }
         .member-avatar { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 3px solid #f0f0f0; object-fit: cover; background-color: #fff; }
         .member-name { font-weight: bold; font-size: 1.2em; color: #2c3e50; margin-bottom: 5px; }
         .member-bio { font-size: 0.9em; color: #666; word-break: keep-all; line-height: 1.5; }
 
-        /* 기존 스타일들 (달력, 랭킹, 피드 등) */
+        /* 기존 스타일들 */
         .day-headers { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 10px; text-align: center; font-weight: bold; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .day-header.sun { color: #e74c3c; } .day-header.sat { color: #3498db; }
         .month-controls { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; font-size: 1.3em; font-weight: bold; color: #333; }
@@ -69,7 +78,6 @@
         .comment-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; }
         .comment-item { background: #fff; padding: 8px 12px; margin-bottom: 5px; border-radius: 6px; font-size: 0.9em; border: 1px solid #eee; display:flex; gap: 10px; }
         .comment-author { color: #e74c3c; font-weight: bold; white-space: nowrap; }
-        
         .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); display:flex; justify-content:center; align-items:center; flex-direction: column; z-index: 2000; }
         .loading-spinner { border: 5px solid #f3f3f3; border-top: 5px solid #e74c3c; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -128,10 +136,26 @@
 
     <div id="memberTab" class="tab-content">
         <h2>👥 뼈갈단 멤버들</h2>
-        <div class="sub-title">우리는 뼈를 가는 동료들입니다</div>
+        <div class="sub-title">캐릭터를 만들어 자신을 표현하세요</div>
         
         <div class="member-form">
-            <h4 style="margin-top:0;">내 프로필 등록/수정</h4>
+            <h4 style="margin-top:0;">내 캐릭터 만들기</h4>
+            
+            <div class="avatar-preview-container">
+                <img id="avatarPreview" src="" class="avatar-preview">
+                <div class="avatar-controls">
+                    <select id="avatarStyle" class="avatar-select" onchange="updateAvatarPreview()">
+                        <option value="notionists">노션 스타일 (기본)</option>
+                        <option value="adventurer">용감한 모험가</option>
+                        <option value="bottts">귀여운 로봇</option>
+                        <option value="pixel-art">픽셀 아트</option>
+                        <option value="lorelei">예술적 감성</option>
+                        <option value="fun-emoji">이모지</option>
+                    </select>
+                    <button class="avatar-btn" onclick="randomizeAvatar()">🎲 주사위</button>
+                </div>
+            </div>
+
             <textarea id="inputBio" placeholder="간단한 자기소개를 입력하세요 (예: 매일 6시간 공부 목표!)"></textarea>
             <button class="btn-submit" onclick="saveMember()">프로필 저장하기</button>
             <p style="font-size:0.8em; color:#999; margin-top:5px;">* 같은 이름으로 저장하면 내용이 수정됩니다.</p>
@@ -161,25 +185,53 @@
 <script>
     // ============================================================
     // ⚠️ [중요] 새로 배포한 구글 웹 앱 URL을 여기에 넣으세요!
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7FfacDfUx1rkMcmC6mn-eN3SAp6MU3svSxogwDce0Usz0vimqOJRPCLfxnHDXXm6PMA/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwPzqObrlx0q5kXHHMPAKBTzq9J3XTd5j-LuPkxZKCWhNjiZ4pPEUbYMxFqLQxM3kvXpg/exec"; 
     // ============================================================
 
     let currentDate = new Date();
     let dbData = { tasks: [], feeds: [], comments: [], members: [] };
     let selectedDateKey = null;
+    let currentAvatarSeed = ""; // 현재 선택된 아바타의 랜덤 시드
 
     window.onload = function() {
         const savedName = localStorage.getItem('study_username');
-        if(savedName) document.getElementById('userName').value = savedName;
+        if(savedName) {
+            document.getElementById('userName').value = savedName;
+            currentAvatarSeed = savedName; // 기본 시드는 이름
+        } else {
+            currentAvatarSeed = "bone-squad";
+        }
+        updateAvatarPreview(); // 아바타 미리보기 초기화
         loadData();
     };
 
     document.getElementById('userName').addEventListener('input', function() {
         localStorage.setItem('study_username', this.value);
+        // 이름 바꿀 때, 사용자가 랜덤 버튼을 안 눌렀다면 이름 따라가게 함
+        if(this.value) {
+            currentAvatarSeed = this.value; 
+            updateAvatarPreview();
+        }
     });
+
     document.getElementById('userName').addEventListener('change', function() {
         renderCalendar();
     });
+
+    // --- 아바타 관련 함수 ---
+    function updateAvatarPreview() {
+        const style = document.getElementById('avatarStyle').value;
+        const seed = currentAvatarSeed || "default";
+        // DiceBear API URL 생성
+        const url = `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
+        document.getElementById('avatarPreview').src = url;
+    }
+
+    function randomizeAvatar() {
+        // 랜덤 시드 생성 (숫자+문자 조합)
+        currentAvatarSeed = Math.random().toString(36).substring(7);
+        updateAvatarPreview();
+    }
 
     function loadData() {
         const loadingEl = document.getElementById('loadingMsg');
@@ -206,7 +258,7 @@
                     renderCalendar(); 
                     renderRanking(); 
                     renderFeed(); 
-                    renderMembers(); // 멤버 렌더링 추가
+                    renderMembers();
                 } catch (e) { console.error(e); }
                 loadingEl.style.display = 'none';
             })
@@ -291,7 +343,6 @@
         });
     }
 
-    // [신규] 멤버 갤러리 렌더링
     function renderMembers() {
         const listEl = document.getElementById('memberList');
         listEl.innerHTML = '';
@@ -300,8 +351,8 @@
         dbData.members.forEach(member => {
             const div = document.createElement('div');
             div.className = 'member-card';
-            // 이름 기반으로 자동 아바타 생성 (DiceBear API 사용)
-            const avatarUrl = `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(member.name)}`;
+            // DB에 저장된 아바타 URL 사용 (없으면 이름 기반 기본값)
+            const avatarUrl = member.avatar || `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(member.name)}`;
             
             div.innerHTML = `
                 <img src="${avatarUrl}" class="member-avatar" alt="${member.name}">
@@ -342,53 +393,14 @@
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
     }
 
-    // [신규] 멤버 저장 함수
     function saveMember() {
         const name = document.getElementById('userName').value.trim();
         const bio = document.getElementById('inputBio').value.trim();
+        const avatarUrl = document.getElementById('avatarPreview').src; // 현재 미리보기 중인 아바타 저장
+
         if(!name || !bio) { alert("이름과 소개글을 입력해주세요."); return; }
 
-        const newData = { action: 'saveMember', name: name, bio: bio };
+        const newData = { action: 'saveMember', name: name, bio: bio, avatar: avatarUrl };
         
-        // 화면에 즉시 반영 (이미 있으면 수정, 없으면 추가)
         if (!dbData.members) dbData.members = [];
         const existingIndex = dbData.members.findIndex(m => m.name === name);
-        if (existingIndex >= 0) {
-            dbData.members[existingIndex].bio = bio; // 수정
-            alert("프로필이 수정되었습니다!");
-        } else {
-            dbData.members.push(newData); // 추가
-            alert("환영합니다! 프로필이 등록되었습니다.");
-        }
-        
-        renderMembers();
-        document.getElementById('inputBio').value = '';
-        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
-    }
-
-    // --- 유틸리티 ---
-    function openTab(tabName, event) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-link').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabName).classList.add('active');
-        event.currentTarget.classList.add('active');
-        if(tabName === 'rankingTab') renderRanking();
-        if(tabName === 'snsTab') renderFeed();
-        if(tabName === 'memberTab') renderMembers();
-    }
-    function openModal(date) {
-        selectedDateKey = date;
-        document.getElementById('modalDateTitle').innerText = date;
-        const listEl = document.getElementById('taskList');
-        listEl.innerHTML = '';
-        const tasks = dbData.tasks ? dbData.tasks.filter(t => t.date === date) : [];
-        if(tasks.length === 0) { listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">기록 없음</li>'; } 
-        else { tasks.forEach(t => { listEl.innerHTML += `<li class="task-item"><div class="task-author">${t.name}</div><div class="task-desc">${t.task}</div></li>`; }); }
-        document.getElementById('taskModal').style.display = 'flex';
-    }
-    function closeModal() { document.getElementById('taskModal').style.display = 'none'; }
-    function changeMonth(step) { currentDate.setMonth(currentDate.getMonth() + step); renderCalendar(); }
-    window.onclick = function(e) { if(e.target == document.getElementById('taskModal')) closeModal(); }
-</script>
-</body>
-</html>
