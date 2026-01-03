@@ -3,84 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>뼈갈단 스터디 통합 대시보드 (Bright Ver.)</title>
+    <title>뼈갈단 스터디 통합 대시보드 (Final)</title>
     <style>
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8f9fa; color: #333; margin: 0; }
+        /* 배너 스타일 */
         .banner { width: 100%; max-height: 300px; object-fit: cover; border-bottom: 3px solid #e74c3c; }
+        
         .container { max-width: 1000px; margin: 20px auto; background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #eee; }
         
-        /* 탭 메뉴 스타일 */
+        /* 탭 메뉴 */
         .tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
-        .tab-link { padding: 15px 25px; cursor: pointer; font-weight: bold; color: #999; transition: 0.3s; }
-        .tab-link:hover { color: #e74c3c; }
-        .tab-link.active { color: #e74c3c; border-bottom: 4px solid #e74c3c; }
-        .tab-content { display: none; }
+        .tab-link { padding: 15px 25px; cursor: pointer; font-weight: bold; color: #999; transition: 0.3s; flex: 1; text-align: center; }
+        .tab-link:hover { color: #e74c3c; background: #fff5f5; }
+        .tab-link.active { color: #e74c3c; border-bottom: 4px solid #e74c3c; background: #fff; }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* 공통 스타일 및 달력 */
+        /* 공통 */
         h2 { color: #e74c3c; text-align: center; margin-top: 0; }
         .sub-title { color: #666; text-align: center; margin-bottom: 20px; }
-        input.name-input { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #e74c3c; border-radius: 8px; background: #fff; color: #333; text-align: center; font-size: 1.1em; box-sizing: border-box; }
+        input.name-input { width: 100%; padding: 12px; margin-bottom: 20px; border: 2px solid #e74c3c; border-radius: 8px; background: #fff; color: #333; text-align: center; font-size: 1.1em; font-weight:bold; box-sizing: border-box; }
+        
+        /* 달력 */
         .month-controls { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; font-size: 1.3em; font-weight: bold; color: #333; }
-        .btn-move { background: none; border: none; color: #e74c3c; font-size: 1.5em; cursor: pointer; padding: 0 15px; }
+        .btn-move { background: none; border: none; color: #e74c3c; font-size: 1.5em; cursor: pointer; padding: 0 20px; }
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-        .day { height: 120px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px; background: #fff; overflow-y: auto; cursor: pointer; transition: 0.2s; }
+        .day { height: 120px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 8px; background: #fff; overflow-y: auto; cursor: pointer; transition: 0.2s; position: relative; }
         .day:hover { background-color: #ffeceb; border-color: #e74c3c; }
         .day-number { font-weight: bold; margin-bottom: 5px; display: block; color: #333; }
         .submitter-tag { display: block; font-size: 11px; background: #2c3e50; color: #fff; padding: 3px 6px; margin-bottom: 3px; border-radius: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
         .my-submit { background: #e74c3c; }
 
-        /* 모달 (팝업) */
+        /* 모달 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: #fff; padding: 20px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 80vh; display: flex; flex-direction: column; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        .modal-content { background: #fff; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .modal-header { color: #e74c3c; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 1.2em; font-weight: bold; }
-        .modal-body { overflow-y: auto; flex-grow: 1; }
+        .modal-body { overflow-y: auto; flex-grow: 1; padding-right: 5px; }
         .task-list { list-style: none; padding: 0; margin: 0 0 20px 0; border-bottom: 1px solid #eee; padding-bottom: 20px; }
         .task-item { background: #f9f9f9; padding: 12px; margin-bottom: 8px; border-radius: 6px; border-left: 4px solid #bdc3c7; }
         .task-author { font-weight: bold; color: #333; margin-bottom: 4px; font-size: 0.9em; }
         .task-desc { white-space: pre-wrap; font-size: 0.95em; color: #555; }
-        textarea.task-input, textarea.feed-input, textarea.comment-input { width: 100%; height: 80px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; resize: none; box-sizing: border-box; font-family: inherit; background: #fff; color: #333; margin-bottom: 10px; }
+        
+        textarea { width: 100%; height: 80px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; resize: none; box-sizing: border-box; font-family: inherit; background: #fff; color: #333; margin-bottom: 10px; }
         textarea:focus { border-color: #e74c3c; outline: none; }
         .btn-submit { width: 100%; padding: 12px; background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1em; transition: 0.3s; }
         .btn-submit:hover { background: #c0392b; }
-        .close-btn { cursor: pointer; font-size: 1.5em; color: #999; }
+        .close-btn { cursor: pointer; font-size: 2em; line-height: 0.5; color: #999; }
 
         /* 랭킹 탭 */
         .ranking-list { list-style: none; padding: 0; }
-        .ranking-item { background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; }
-        .rank { font-weight: bold; font-size: 1.2em; color: #e74c3c; margin-right: 15px; }
+        .ranking-item { background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .rank { font-weight: bold; font-size: 1.2em; color: #e74c3c; margin-right: 15px; min-width: 40px; }
         .rank-name { flex-grow: 1; font-weight: bold; color: #333; }
-        .rank-count { color: #666; font-size: 0.9em; }
+        .rank-count { color: #666; font-size: 0.9em; background: #eee; padding: 5px 10px; border-radius: 20px; }
 
         /* 뼈이스북 탭 */
         .feed-form { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #eee; }
         .feed-list { list-style: none; padding: 0; }
         .feed-item { background: #fff; padding: 20px; margin-bottom: 20px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-        .feed-header { display: flex; justify-content: space-between; margin-bottom: 10px; color: #e74c3c; font-weight: bold; }
+        .feed-header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px; }
+        .feed-name { font-weight: bold; color: #2c3e50; font-size: 1.1em; }
         .feed-date { color: #999; font-size: 0.8em; }
-        .feed-content { white-space: pre-wrap; color: #333; margin-bottom: 20px; line-height: 1.5; }
-        .comment-section { border-top: 1px solid #eee; padding-top: 15px; background: #f9f9f9; padding: 15px; border-radius: 8px; }
+        .feed-content { white-space: pre-wrap; color: #333; margin-bottom: 20px; line-height: 1.6; font-size: 1.05em; }
+        .comment-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 15px; }
         .comment-list { list-style: none; padding: 0; margin-bottom: 15px; }
-        .comment-item { background: #fff; padding: 10px; margin-bottom: 5px; border-radius: 6px; font-size: 0.9em; border: 1px solid #eee; }
-        .comment-author { color: #333; font-weight: bold; margin-right: 5px; }
-        .comment-content { color: #555; }
+        .comment-item { background: #fff; padding: 8px 12px; margin-bottom: 5px; border-radius: 6px; font-size: 0.9em; border: 1px solid #eee; display:flex; gap: 10px; }
+        .comment-author { color: #e74c3c; font-weight: bold; white-space: nowrap; }
+        .comment-content { color: #555; word-break: break-all; }
 
-        .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); display:flex; justify-content:center; align-items:center; color: #e74c3c; font-size: 1.5em; font-weight:bold; z-index: 2000; }
+        .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.9); display:flex; justify-content:center; align-items:center; flex-direction: column; z-index: 2000; }
+        .loading-spinner { border: 5px solid #f3f3f3; border-top: 5px solid #e74c3c; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<img src="banner.jpg" alt="뼈갈단 배너" class="banner">
+<img src="banner.jpg" alt="뼈갈단 배너" class="banner" onerror="this.style.display='none'">
 
-<div id="loadingMsg" class="loading-overlay">🔥 뼈갈단 데이터 로딩 중...</div>
+<div id="loadingMsg" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div style="color:#e74c3c; font-weight:bold; font-size:1.2em;">🔥 뼈갈단 데이터 불러오는 중...</div>
+</div>
 
 <div class="container">
-    <input type="text" id="userName" class="name-input" placeholder="당신의 닉네임을 입력하세요 (필수!)">
+    <input type="text" id="userName" class="name-input" placeholder="이름을 입력하세요 (필수)">
 
     <div class="tabs">
-        <div class="tab-link active" onclick="openTab('calendarTab')">📅 성과 달력</div>
-        <div class="tab-link" onclick="openTab('rankingTab')">🏆 명예의 전당</div>
-        <div class="tab-link" onclick="openTab('snsTab')">💀 뼈이스북</div>
+        <div class="tab-link active" onclick="openTab('calendarTab', event)">📅 성과 달력</div>
+        <div class="tab-link" onclick="openTab('rankingTab', event)">🏆 명예의 전당</div>
+        <div class="tab-link" onclick="openTab('snsTab', event)">💀 뼈이스북</div>
     </div>
 
     <div id="calendarTab" class="tab-content active">
@@ -88,9 +100,9 @@
         <div class="sub-title">오늘도 뼈를 갈아 넣었는가?</div>
         <div class="month-controls">
             <button class="btn-move" onclick="changeMonth(-1)">◀</button>
-            <span id="currentMonth" style="margin: 0 20px;"></span>
+            <span id="currentMonth"></span>
             <button class="btn-move" onclick="changeMonth(1)">▶</button>
-            <button onclick="loadData()" style="font-size:0.8em; margin-left:10px; cursor:pointer; background:none; border:none; color:#e74c3c;">🔄</button>
+            <button onclick="loadData()" style="font-size:0.8em; cursor:pointer; background:none; border:none; color:#e74c3c;">🔄</button>
         </div>
         <div class="calendar-grid" id="calendar"></div>
     </div>
@@ -99,19 +111,19 @@
         <h2>🏆 최다 뼈갈이 랭킹</h2>
         <div class="sub-title">가장 많이 뼈를 간 자는 누구인가?</div>
         <ul id="rankingList" class="ranking-list">
-            <li style="text-align:center; color:#999; padding: 20px;">아직 데이터가 충분하지 않습니다.</li>
+            <li style="text-align:center; color:#999; padding: 20px;">데이터 로딩 중...</li>
         </ul>
     </div>
 
     <div id="snsTab" class="tab-content">
         <h2>💀 뼈이스북 피드</h2>
-        <div class="sub-title">일상, 잡담, 일정 공유의 장</div>
+        <div class="sub-title">자유로운 소통의 공간</div>
         <div class="feed-form">
-            <textarea id="inputFeed" class="feed-input" placeholder="무슨 생각을 하고 계신가요? (일상, 공유, 잡담 등)"></textarea>
-            <button class="btn-submit" onclick="saveFeed()">피드 게시하기</button>
+            <textarea id="inputFeed" placeholder="무슨 생각을 하고 계신가요?"></textarea>
+            <button class="btn-submit" onclick="saveFeed()">게시하기</button>
         </div>
         <ul id="feedList" class="feed-list">
-            <li style="text-align:center; color:#999; padding: 20px;">아직 작성된 피드가 없습니다. 첫 글을 남겨보세요!</li>
+            <li style="text-align:center; color:#999; padding: 20px;">불러오는 중...</li>
         </ul>
     </div>
 </div>
@@ -126,166 +138,276 @@
             <h4 style="color:#e74c3c; margin-top:0;">📋 멤버들의 일과</h4>
             <ul id="taskList" class="task-list"></ul>
             <h4 style="color:#e74c3c;">✍️ 나의 일과 기록</h4>
-            <textarea id="inputTask" class="task-input" placeholder="오늘 뼈를 갈아넣은 내용을 적어주세요..."></textarea>
-            <button class="btn-submit" onclick="saveTask()">등록 / 수정하기</button>
+            <textarea id="inputTask" placeholder="오늘 뼈를 갈아넣은 내용을 적어주세요..."></textarea>
+            <button class="btn-submit" onclick="saveTask()">등록하기</button>
         </div>
     </div>
 </div>
 
 <script>
     // ============================================================
-    // ⚠️ [중요] Google Apps Script 코드를 수정하고 [새 배포] 후 얻은 새 URL을 여기에 넣으세요!
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcDojsbQuoxfczj-RzkduCzxrALHXtB2vy4ZdL65MMgerCuM-sud3HIyiN0RYPYsiGLw/exec"; 
+    // ⚠️ 아래 주소를 새로 배포한 웹 앱 URL로 반드시 바꿔주세요!
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6FKs0qYRoU5laxyvaslspm6h5OHDnDSXs2AP6pcRi2Hjm4WNvNy7CWhTr2QXCdm3vpw/exec"; 
     // ============================================================
 
     let currentDate = new Date();
-    let dbData = { tasks: [], feeds: [], comments: [] }; // 데이터 구조 변경
+    let dbData = { tasks: [], feeds: [], comments: [] };
     let selectedDateKey = null;
 
+    // 초기화
     window.onload = function() {
         const savedName = localStorage.getItem('study_username');
         if(savedName) document.getElementById('userName').value = savedName;
-        loadData();
+        
+        loadData(); // 시작하자마자 데이터 로드
     };
 
-    document.getElementById('userName').addEventListener('change', function() {
+    // 이름 저장 리스너
+    document.getElementById('userName').addEventListener('input', function() {
         localStorage.setItem('study_username', this.value);
-        renderCalendar(); renderRanking(); renderFeed(); // 이름 변경 시 모든 뷰 갱신
+    });
+    document.getElementById('userName').addEventListener('change', function() {
+        renderCalendar(); // 이름 바꾸면 내 성과 표시(빨간색) 갱신
     });
 
-    // 탭 전환 함수
-    function openTab(tabName) {
-        const tabContents = document.getElementsByClassName('tab-content');
-        for (let i = 0; i < tabContents.length; i++) { tabContents[i].classList.remove('active'); }
-        const tabLinks = document.getElementsByClassName('tab-link');
-        for (let i = 0; i < tabLinks.length; i++) { tabLinks[i].classList.remove('active'); }
-        document.getElementById(tabName).classList.add('active');
-        event.currentTarget.classList.add('active');
-        if (tabName === 'rankingTab') renderRanking();
-        if (tabName === 'snsTab') renderFeed();
-    }
-
-    // 데이터 불러오기 (통합)
+    // 1. 데이터 불러오기 (Read)
     function loadData() {
-        if(SCRIPT_URL.includes("YOUR_GOOGLE")) {
-            document.getElementById('loadingMsg').style.display = 'none'; alert("SCRIPT_URL을 설정해주세요!"); return;
+        if(SCRIPT_URL.includes("YOUR_NEW")) {
+            document.getElementById('loadingMsg').style.display = 'none';
+            alert("스크립트 URL을 설정해주세요!");
+            return;
         }
+        
         document.getElementById('loadingMsg').style.display = 'flex';
-        // action=getAllData 파라미터를 추가해 서버에 요청
+        
         fetch(SCRIPT_URL + "?action=getAllData")
             .then(response => response.json())
             .then(data => {
-                dbData = data; // 서버가 준 {tasks:[], feeds:[], comments:[]} 형태를 받음
-                document.getElementById('loadingMsg').style.display = 'none';
+                console.log("데이터 수신 완료:", data); // 디버깅용
+                dbData = data;
+                
+                // 모든 화면 갱신
                 renderCalendar();
-                renderRanking(); // 데이터 로드 후 랭킹도 갱신
-                renderFeed();    // 데이터 로드 후 피드도 갱신
+                renderRanking();
+                renderFeed();
+                
+                document.getElementById('loadingMsg').style.display = 'none';
             })
             .catch(error => {
-                document.getElementById('loadingMsg').style.display = 'none'; alert("데이터 로드 실패.");
+                console.error("데이터 로드 실패:", error);
+                document.getElementById('loadingMsg').style.display = 'none';
+                // 데이터가 아예 없을 때만 경고
+                if(!dbData.tasks) alert("서버와 통신할 수 없습니다. URL을 확인하세요.");
             });
     }
 
-    // 렌더링 함수들... (기존 코드와 동일하거나 약간 수정)
-    function renderCalendar() { 
-        const calendarEl = document.getElementById('calendar'); calendarEl.innerHTML = '';
-        const year = currentDate.getFullYear(); const month = currentDate.getMonth();
+    // 2. 화면 그리기 - 달력
+    function renderCalendar() {
+        const calendarEl = document.getElementById('calendar');
+        calendarEl.innerHTML = '';
+        
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
         document.getElementById('currentMonth').innerText = `${year}년 ${month + 1}월`;
+
         const lastDay = new Date(year, month + 1, 0).getDate();
         const myName = document.getElementById('userName').value.trim();
+
         for (let i = 1; i <= lastDay; i++) {
+            // 날짜 키 생성 (YYYY-M-D 형식)
             const dateKey = `${year}-${month+1}-${i}`;
-            const dayEl = document.createElement('div'); dayEl.className = 'day';
+            
+            const dayEl = document.createElement('div');
+            dayEl.className = 'day';
             dayEl.innerHTML = `<span class="day-number">${i}</span>`;
-            // dbData.tasks 배열에서 필터링
-            const todaysData = dbData.tasks.filter(item => item.date === dateKey);
-            todaysData.forEach(item => {
-                const tag = document.createElement('span'); tag.className = 'submitter-tag'; tag.innerText = item.name;
-                if (myName && item.name === myName) tag.classList.add('my-submit');
-                dayEl.appendChild(tag);
-            });
-            dayEl.onclick = () => openModal(dateKey); calendarEl.appendChild(dayEl);
+
+            // 데이터 매칭 (날짜 문자열 비교)
+            if (dbData.tasks) {
+                const todaysData = dbData.tasks.filter(item => {
+                    // 구글시트에서 'YYYY-M-D' 문자열로 오므로 그대로 비교
+                    return item.date === dateKey;
+                });
+                
+                todaysData.forEach(item => {
+                    const tag = document.createElement('span');
+                    tag.className = 'submitter-tag';
+                    tag.innerText = item.name;
+                    if (myName && item.name === myName) tag.classList.add('my-submit');
+                    dayEl.appendChild(tag);
+                });
+            }
+
+            dayEl.onclick = () => openModal(dateKey);
+            calendarEl.appendChild(dayEl);
         }
     }
-    
-    function renderRanking() {
-        const rankingListEl = document.getElementById('rankingList'); rankingListEl.innerHTML = '';
-        if (dbData.tasks.length === 0) { rankingListEl.innerHTML = '<li style="text-align:center; color:#999; padding:20px;">아직 데이터가 충분하지 않습니다.</li>'; return; }
-        
-        const counts = {};
-        dbData.tasks.forEach(task => { counts[task.name] = (counts[task.name] || 0) + 1; });
-        const sortedRanking = Object.entries(counts).sort((a, b) => b[1] - a[1]);
 
-        sortedRanking.forEach((item, index) => {
-            const li = document.createElement('li'); li.className = 'ranking-item';
-            li.innerHTML = `<span class="rank">${index + 1}위</span><span class="rank-name">${item[0]}</span><span class="rank-count">${item[1]}회 제출</span>`;
-            rankingListEl.appendChild(li);
+    // 3. 화면 그리기 - 랭킹
+    function renderRanking() {
+        const listEl = document.getElementById('rankingList');
+        listEl.innerHTML = '';
+        
+        if (!dbData.tasks || dbData.tasks.length === 0) {
+            listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">아직 등록된 성과가 없습니다.</li>';
+            return;
+        }
+
+        const counts = {};
+        dbData.tasks.forEach(t => {
+            counts[t.name] = (counts[t.name] || 0) + 1;
+        });
+
+        const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        
+        sorted.forEach((item, index) => {
+            const li = document.createElement('li');
+            li.className = 'ranking-item';
+            let rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index+1}위`;
+            li.innerHTML = `<span class="rank">${rankEmoji}</span>
+                            <span class="rank-name">${item[0]}</span>
+                            <span class="rank-count">${item[1]}회</span>`;
+            listEl.appendChild(li);
         });
     }
 
+    // 4. 화면 그리기 - 피드
     function renderFeed() {
-        const feedListEl = document.getElementById('feedList'); feedListEl.innerHTML = '';
-        if (dbData.feeds.length === 0) { feedListEl.innerHTML = '<li style="text-align:center; color:#999; padding:20px;">아직 작성된 피드가 없습니다. 첫 글을 남겨보세요!</li>'; return; }
+        const listEl = document.getElementById('feedList');
+        listEl.innerHTML = '';
 
-        dbData.feeds.slice().reverse().forEach(feed => { // 최신순 정렬
-            const li = document.createElement('li'); li.className = 'feed-item';
-            const feedComments = dbData.comments.filter(c => c.feedId === feed.id);
-            let commentsHtml = '';
-            feedComments.forEach(c => { commentsHtml += `<li class="comment-item"><span class="comment-author">${c.name}</span><span class="comment-content">${c.content}</span></li>`; });
+        if (!dbData.feeds || dbData.feeds.length === 0) {
+            listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">첫 번째 글을 남겨보세요!</li>';
+            return;
+        }
+
+        // 최신순 정렬 (timestamp 기준)
+        const sortedFeeds = [...dbData.feeds].reverse();
+
+        sortedFeeds.forEach(feed => {
+            const li = document.createElement('li');
+            li.className = 'feed-item';
+            
+            // 이 피드에 달린 댓글만 필터링
+            const myComments = dbData.comments ? dbData.comments.filter(c => c.feedId === feed.id) : [];
+            let commentHtml = '';
+            myComments.forEach(c => {
+                commentHtml += `<li class="comment-item"><span class="comment-author">${c.name}</span><span class="comment-content">${c.content}</span></li>`;
+            });
+
+            // 날짜 예쁘게
+            const dateStr = new Date(feed.timestamp).toLocaleString();
 
             li.innerHTML = `
-                <div class="feed-header"><span>${feed.name}</span><span class="feed-date">${new Date(feed.timestamp).toLocaleString()}</span></div>
+                <div class="feed-header">
+                    <span class="feed-name">${feed.name}</span>
+                    <span class="feed-date">${dateStr}</span>
+                </div>
                 <div class="feed-content">${feed.content}</div>
                 <div class="comment-section">
-                    <ul class="comment-list" id="commentList-${feed.id}">${commentsHtml}</ul>
-                    <div style="display:flex;"><textarea id="commentInput-${feed.id}" class="comment-input" style="height:40px; margin-bottom:0; margin-right:10px;" placeholder="댓글 달기..."></textarea><button class="btn-submit" style="width:80px; padding:0;" onclick="saveComment('${feed.id}')">전송</button></div>
+                    <ul class="comment-list" id="commentList-${feed.id}">${commentHtml}</ul>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="commentInput-${feed.id}" placeholder="댓글 달기..." style="flex:1; padding:8px; border:1px solid #ddd; border-radius:4px;">
+                        <button class="btn-submit" style="width:60px; padding:0;" onclick="saveComment('${feed.id}')">등록</button>
+                    </div>
                 </div>
             `;
-            feedListEl.appendChild(li);
+            listEl.appendChild(li);
         });
     }
 
-    // 저장 함수들... (action 파라미터 추가가 핵심)
+    // 5. 저장 로직 (Write)
     function saveTask() {
-        const name = document.getElementById('userName').value.trim(); const task = document.getElementById('inputTask').value.trim();
-        if (!name || !task) { alert("이름과 내용을 입력해주세요."); return; }
-        // action: 'saveTask'를 추가하여 서버가 알 수 있게 함
+        const name = document.getElementById('userName').value.trim();
+        const task = document.getElementById('inputTask').value.trim();
+        if(!name || !task) { alert("이름과 내용을 모두 입력해주세요."); return; }
+
         const newData = { action: 'saveTask', date: selectedDateKey, name: name, task: task };
-        dbData.tasks.push(newData); renderCalendar(); closeModal(); document.getElementById('inputTask').value = '';
+        
+        // UI 즉시 반영 (낙관적 업데이트)
+        dbData.tasks.push(newData);
+        renderCalendar();
+        renderRanking();
+        closeModal();
+        document.getElementById('inputTask').value = '';
+
+        // 서버 전송
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
     }
 
     function saveFeed() {
-        const name = document.getElementById('userName').value.trim(); const content = document.getElementById('inputFeed').value.trim();
-        if (!name || !content) { alert("이름과 내용을 입력해주세요."); return; }
-        const feedId = 'feed_' + new Date().getTime();
-        // action: 'saveFeed' 추가
-        const newData = { action: 'saveFeed', id: feedId, name: name, content: content, timestamp: new Date().toISOString() };
-        dbData.feeds.push(newData); renderFeed(); document.getElementById('inputFeed').value = '';
+        const name = document.getElementById('userName').value.trim();
+        const content = document.getElementById('inputFeed').value.trim();
+        if(!name || !content) { alert("이름과 내용을 입력해주세요."); return; }
+
+        const newData = { 
+            action: 'saveFeed', 
+            id: 'feed_' + Date.now(), 
+            name: name, 
+            content: content, 
+            timestamp: new Date().toISOString() 
+        };
+
+        if(!dbData.feeds) dbData.feeds = [];
+        dbData.feeds.push(newData);
+        renderFeed();
+        document.getElementById('inputFeed').value = '';
+
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
     }
 
     function saveComment(feedId) {
-        const name = document.getElementById('userName').value.trim(); const content = document.getElementById(`commentInput-${feedId}`).value.trim();
-        if (!name || !content) { alert("이름과 댓글 내용을 입력해주세요."); return; }
-        // action: 'saveComment' 추가
-        const newData = { action: 'saveComment', feedId: feedId, name: name, content: content, timestamp: new Date().toISOString() };
-        dbData.comments.push(newData); renderFeed();
+        const name = document.getElementById('userName').value.trim();
+        const inputEl = document.getElementById(`commentInput-${feedId}`);
+        const content = inputEl.value.trim();
+        if(!name || !content) { alert("이름과 댓글을 입력해주세요."); return; }
+
+        const newData = {
+            action: 'saveComment',
+            feedId: feedId,
+            name: name,
+            content: content,
+            timestamp: new Date().toISOString()
+        };
+
+        if(!dbData.comments) dbData.comments = [];
+        dbData.comments.push(newData);
+        renderFeed(); // 댓글 달린 거 바로 보이게 갱신
+
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(newData) });
     }
 
-    // 기타 유틸리티 함수 (모달, 달력 이동 등 - 기존과 동일)
-    function openModal(date) {
-        selectedDateKey = date; document.getElementById('modalDateTitle').innerText = `${date} 현황`;
-        const taskListEl = document.getElementById('taskList'); taskListEl.innerHTML = '';
-        const todaysTasks = dbData.tasks.filter(d => d.date === date);
-        if (todaysTasks.length === 0) { taskListEl.innerHTML = '<li style="text-align:center; color:#999; padding:20px;">아직 아무도 뼈를 갈지 않았습니다...🦴</li>'; } 
-        else { todaysTasks.forEach(item => { taskListEl.innerHTML += `<li class="task-item"><div class="task-author">${item.name}</div><div class="task-desc">${item.task}</div></li>`; }); }
-        document.getElementById('inputTask').value = ''; document.getElementById('taskModal').style.display = 'flex';
+    // 유틸리티
+    function openTab(tabName, event) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-link').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        event.currentTarget.classList.add('active');
+        
+        if(tabName === 'rankingTab') renderRanking();
+        if(tabName === 'snsTab') renderFeed();
     }
+
+    function openModal(date) {
+        selectedDateKey = date;
+        document.getElementById('modalDateTitle').innerText = date;
+        const listEl = document.getElementById('taskList');
+        listEl.innerHTML = '';
+        
+        const tasks = dbData.tasks ? dbData.tasks.filter(t => t.date === date) : [];
+        if(tasks.length === 0) {
+            listEl.innerHTML = '<li style="text-align:center; padding:20px; color:#999;">작성된 일과가 없습니다.</li>';
+        } else {
+            tasks.forEach(t => {
+                listEl.innerHTML += `<li class="task-item"><div class="task-author">${t.name}</div><div class="task-desc">${t.task}</div></li>`;
+            });
+        }
+        document.getElementById('taskModal').style.display = 'flex';
+    }
+
     function closeModal() { document.getElementById('taskModal').style.display = 'none'; }
     function changeMonth(step) { currentDate.setMonth(currentDate.getMonth() + step); renderCalendar(); }
     window.onclick = function(e) { if(e.target == document.getElementById('taskModal')) closeModal(); }
+
 </script>
 </body>
 </html>
