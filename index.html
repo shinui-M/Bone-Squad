@@ -124,7 +124,7 @@
             <button onclick="loadData()" style="font-size:0.8em; cursor:pointer; background:none; border:none; color:#e74c3c;">🔄</button>
         </div>
 
-        <div class="day-headers">
+      <div class="day-headers">
             <div class="day-header sun">일</div>
             <div class="day-header">월</div>
             <div class="day-header">화</div>
@@ -133,6 +133,26 @@
             <div class="day-header">금</div>
             <div class="day-header sat">토</div>
         </div>
+        ```
+
+### 3. 스타일(CSS) 확인하기 (혹시 글자가 하얀색이라 안 보일까봐)
+
+파일 위쪽 `<style>` 태그 안에 아래 내용이 있는지 확인해 주세요. 없으면 `<style>` 안에 아무 데나 추가해 주세요.
+
+```css
+/* 요일바 스타일 */
+.day-headers { 
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 10px; 
+    margin-bottom: 10px; 
+    text-align: center; 
+    font-weight: bold; 
+    border-bottom: 1px solid #eee; 
+    padding-bottom: 10px; 
+}
+.day-header.sun { color: #e74c3c; } /* 일요일 빨강 */
+.day-header.sat { color: #3498db; } /* 토요일 파랑 */
 
         <div class="calendar-grid" id="calendar"></div>
     </div>
@@ -450,3 +470,4 @@
 </script>
 </body>
 </html>
+
