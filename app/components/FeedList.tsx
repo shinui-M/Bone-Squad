@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Feed, Comment } from '@/lib/types';
 import Loading from './Loading';
+import Image from 'next/image';
 
 interface FeedListProps {
   currentUser: string;
@@ -17,6 +18,9 @@ export default function FeedList({ currentUser }: FeedListProps) {
   const [posting, setPosting] = useState(false);
   const [expandedFeed, setExpandedFeed] = useState<string | null>(null);
   const [newComments, setNewComments] = useState<Record<string, string>>({});
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchFeeds();
@@ -33,7 +37,6 @@ export default function FeedList({ currentUser }: FeedListProps) {
       console.error('Error fetching feeds:', error);
     } else if (data) {
       setFeeds(data as Feed[]);
-      // Fetch comments for all feeds
       const feedIds = data.map(f => f.id);
       if (feedIds.length > 0) {
         const { data: commentsData } = await supabase
@@ -57,22 +60,74 @@ export default function FeedList({ currentUser }: FeedListProps) {
     setLoading(false);
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('이미지 크기는 5MB 이하여야 합니다.');
+        return;
+      }
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `feeds/${fileName}`;
+
+    const { error } = await supabase.storage
+      .from('images')
+      .upload(filePath, file);
+
+    if (error) {
+      console.error('Error uploading image:', error);
+      return null;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('images')
+      .getPublicUrl(filePath);
+
+    return urlData.publicUrl;
+  };
+
   const handlePost = async () => {
     if (!currentUser) {
       alert('이름을 먼저 입력해주세요.');
       return;
     }
-    if (!newContent.trim()) {
-      alert('내용을 입력해주세요.');
+    if (!newContent.trim() && !selectedImage) {
+      alert('내용이나 이미지를 추가해주세요.');
       return;
     }
 
     setPosting(true);
+
+    let imageUrl = null;
+    if (selectedImage) {
+      imageUrl = await uploadImage(selectedImage);
+    }
+
     const { error } = await supabase
       .from('feeds')
       .insert([{
         name: currentUser,
         content: newContent.trim(),
+        image_url: imageUrl,
       }]);
 
     if (error) {
@@ -80,6 +135,7 @@ export default function FeedList({ currentUser }: FeedListProps) {
       alert('게시에 실패했습니다.');
     } else {
       setNewContent('');
+      removeImage();
       fetchFeeds();
     }
     setPosting(false);
@@ -122,7 +178,6 @@ export default function FeedList({ currentUser }: FeedListProps) {
       alert('댓글 작성에 실패했습니다.');
     } else {
       setNewComments({ ...newComments, [feedId]: '' });
-      // Refetch comments
       const { data } = await supabase
         .from('comments')
         .select('*')
@@ -191,10 +246,48 @@ export default function FeedList({ currentUser }: FeedListProps) {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={3}
             />
-            <div className="flex justify-end mt-2">
+
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="relative mt-2 inline-block">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="max-h-40 rounded-lg object-cover"
+                />
+                <button
+                  onClick={removeImage}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between mt-2">
+              {/* Image Upload Button */}
+              <div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageSelect}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-gray-500 hover:text-gray-700 flex items-center gap-1 text-sm"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  사진
+                </button>
+              </div>
+
               <button
                 onClick={handlePost}
-                disabled={posting || !newContent.trim()}
+                disabled={posting || (!newContent.trim() && !selectedImage)}
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 disabled:opacity-50"
               >
                 {posting ? '게시 중...' : '게시하기'}
@@ -236,7 +329,19 @@ export default function FeedList({ currentUser }: FeedListProps) {
                     </button>
                   )}
                 </div>
-                <p className="text-gray-700 whitespace-pre-wrap">{feed.content}</p>
+                {feed.content && (
+                  <p className="text-gray-700 whitespace-pre-wrap mb-3">{feed.content}</p>
+                )}
+                {/* Feed Image */}
+                {feed.image_url && (
+                  <div className="relative w-full rounded-lg overflow-hidden">
+                    <img
+                      src={feed.image_url}
+                      alt="Feed image"
+                      className="w-full max-h-96 object-cover rounded-lg"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Comments Section */}
